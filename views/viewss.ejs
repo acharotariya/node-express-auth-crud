@@ -1,0 +1,58 @@
+<html>
+    <head>
+    </head>
+        <body>
+           
+            <div class="container">
+  <h2>Add item</h2>
+  <!-- <p>Make the viewport larger than 768px wide to see that all of the form elements are inline, left aligned, and the labels are alongside.</p> -->
+  <form class="form-inline" action="/AddItem" method="post">
+    <div class="form-group">
+      <label for="fruit">fruit:</label>
+      <input type="fruit" class="form-control" placeholder="Enter fruit name" name="fruit">
+    </div>
+    <div class="form-group">
+      <label for="price">price:</label>
+      <input type="price" class="form-control" placeholder="Enter price" name="price">
+    </div>
+    <!-- <div class="checkbox">
+      <label><input type="checkbox" name="remember"> Remember me</label>
+    </div> -->
+    <button type="submit" class="btn btn-default">Submit</button>
+  </form>
+        </div>
+
+    <table id="table" >  
+        <thead>  
+            <tr>  
+                <th>fruit</th>  
+                <th>price</th>  
+            </tr>  
+        </thead>  
+         <tbody>  
+         <% dashboard.forEach(function (user) { %>
+            <tr>  
+                <td><%= user.fruit %></td>  
+                <td><%= user.price %></td>
+                <td>
+				<div style="float:left">
+                    <a href='/EditItem/<%= user._id %>'>Edit</a> &nbsp;	
+                    <a href='/DeleteItem/<%= user._id %>'>Delete</a> &nbsp;							
+					<!-- <form method="post" action="/DeleteItem/<%= user._id %>" style="float:right">
+						 <input type="submit" name="delete" value='Delete' onClick="return confirm('Are you sure you want to delete?')" />
+						 <input type="hidden" name="_method" value="DELETE" /> 
+					</form> -->
+				</div>
+			</td>
+            </tr>                                   
+         <% }) %>
+         </tbody>
+    </table> 
+         </br>
+    </br> 
+         <div style="float:left">
+           <a href='/logout'>logout</a> &nbsp;
+        </div> 
+   
+    </body>
+</html>

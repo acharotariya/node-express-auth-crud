@@ -1,0 +1,19 @@
+<html>
+</html>
+<form action="/UpdateItem/<%= id %>" method="post" name="form1">
+	<table width="25%" border="0">
+		<tr> 
+			<td>fruit</td>
+			<td><input type="text" name="fruit" id="fruit" value="<%= fruit %>" /></td>
+		</tr>
+		<tr> 
+			<td>price</td>
+			<td><input type="text" name="price" value="<%= price %>" /></td>
+		</tr>
+		<tr> 
+			<td></td>
+            <td><input type="submit" name="Submit" value="Update" /></td>
+            <input type="hidden" name="_method" value="PUT" />
+		</tr>
+	</table>
+</form>
