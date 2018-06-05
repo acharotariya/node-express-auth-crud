@@ -48,19 +48,20 @@ let getUsername = function (username) {
     return promise;
 }
 
-router.post('/signup', async function (req, res) {
-    console.log(req.body)
-    getUsername(req.body.username).then(async (result) => {
+router.post('/signup', function (req, res) {
+    console.log("signup called")
+    getUsername(req.body.username).then((result) => {
         let user = new Users({ username: req.body.username, password: hashSync(req.body.password, 2) });
-        user = await user.save();
-        console.log("user", user)
-        res.send(JSON.stringify({ status: 1, code: 200, message: 'you are successfully register...' }));
+        user.save().then((user) => {
+            console.log("user", user)
+            res.send(JSON.stringify({ status: 1, code: 200, message: 'you are successfully register...' }));
+        })
     }).catch((err) => {
         console.log("err >>>>>>>>>>>>>>", err)
         res.status(409);
         res.send(err);
     })
-});
+})
 
 
 let attempt = function (username, password) {
@@ -86,11 +87,10 @@ let attempt = function (username, password) {
     return promise;
 };
 
-router.post('/login', async function (req, res) {
-    console.log("req", req)
+router.post('/login', function (req, res) {
     // console.log("req.body.username",req.body.username)
 
-    attempt(req.body.username, req.body.password).then(async (data) => {
+    attempt(req.body.username, req.body.password).then((data) => {
         console.log("data", data)
 
         payload = {
@@ -102,10 +102,10 @@ router.post('/login', async function (req, res) {
             "sub": "anonymous"
         }
         console.log("payload", payload)
-        let token = await sign(payload, secret);
-        console.log("token", token)
-        res.cookie("auth_token" , token,{"path":"/view"});
-        res.redirect('/view');
+        let token = sign(payload, secret)
+            console.log("token", token)
+            res.cookie("auth_token", token, { "path": "/view" });
+            res.redirect('/view');
         // res.render('view',{})
         // res.send(JSON.stringify({ status: 1, code: 200, message: 'you are successfully login...' ,logintoken:token}));
 
@@ -117,63 +117,59 @@ router.post('/login', async function (req, res) {
     })
 })
 
-router.post('/AddItem', async function (req, res) {
+router.post('/AddItem', function (req, res) {
     console.log("req", req.body.fruit)
     let item = new Items({ fruit: req.body.fruit, price: req.body.price });
-    itemdata = await item.save();
-    console.log("itemdata", itemdata)
-    res.redirect('/view')
+    item.save().then((itemdata) => {
+        console.log("itemdata", itemdata)
+        res.redirect('/view')
+    })
 })
 
-router.get('/EditItem/(:id)', async function (req, res) {
+router.get('/EditItem/(:id)', function (req, res) {
     console.log("req", req.params.id)
 
-    let items = await Items.find({ _id: req.params.id });
-    let data = items[0];
-
-    if (items.length == 0) {
-        res.status(401);
-        res.send("item not exist");
-    } else {
-        res.render('edit', {
-            id: data._id,
-            fruit: data.fruit,
-            price: data.price
-        })
-        //  query = { _id: req.params.id  }
-        //   const update = {
-        //       $set: { "fruit": req.body.fruit, "price": req.body.price, "updated_at": new Date() }
-        //   };
-
-        //   let up = await Items.findOneAndUpdate(query, update, { returnNewDocument: true, new: true })
-
-        //   console.log("up",up)
-    }
+    Items.find({ _id: req.params.id }).then((items) => {
+        let data = items[0];
+        if (items.length == 0) {
+            res.status(401);
+            res.send("item not exist");
+        } else {
+            res.render('edit', {
+                id: data._id,
+                fruit: data.fruit,
+                price: data.price
+            })
+        }
+    })
 })
 
-router.post('/UpdateItem/(:id)', async function (req, res) {
+router.post('/UpdateItem/(:id)', function (req, res) {
     console.log("UpdateItem", req.body)
     query = { _id: req.params.id }
     const update = {
         $set: { "fruit": req.body.fruit, "price": req.body.price, "updated_at": new Date() }
     };
-    let up = await Items.findOneAndUpdate(query, update, { returnNewDocument: true, new: true })
-    res.redirect('/view')
+    Items.findOneAndUpdate(query, update, { returnNewDocument: true, new: true }).then((up) => {
+        res.redirect('/view')
+    })
 })
 
-router.get('/DeleteItem/(:id)', async function (req, res) {
+router.get('/DeleteItem/(:id)', function (req, res) {
     console.log("req", req.params.id)
-    let items = await Items.find({ _id: req.params.id });
-    let data = items[0];
-    if (items.length == 0) {
-        res.status(401);
-        res.send("item not exist");
-    } else {
-        query = { _id: req.params.id }
-        let data = await Items.findOneAndRemove(query)
-        console.log("data", data)
-        res.redirect('/view');
-    }
+    Items.find({ _id: req.params.id }).then((items) => {
+        let data = items[0];
+        if (items.length == 0) {
+            res.status(401);
+            res.send("item not exist");
+        } else {
+            query = { _id: req.params.id }
+            Items.findOneAndRemove(query).then((data) => {
+                console.log("data", data)
+                res.redirect('/view');
+            })
+        }
+    })
 })
 
 var obj = {};
@@ -183,16 +179,17 @@ router.get('/view', function (req, res) {
     Items.find({}, function (err, data) {
         console.log("data", data)
         obj = { dashboard: data };
+        console.log("obj", obj)
         res.render('viewss', obj);
         // res.render('dashboard', { data: data });
     });
 });
 router.get('/logout', function (req, res) {
-console.log( req.cookies.auth_token)
-// res.clearCookie(req.cookies.auth_token);
-res.clearCookie(req.cookies.auth_token,{"path":"/view"});
-// res.send('cookie auth_token cleared');
-res.redirect("/")
+    console.log(req.cookies.auth_token)
+    // res.clearCookie(req.cookies.auth_token);
+    res.clearCookie(req.cookies.auth_token, { "path": "/view" });
+    // res.send('cookie auth_token cleared');
+    res.redirect("/")
 })
 
 module.exports = router;
