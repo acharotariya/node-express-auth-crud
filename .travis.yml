@@ -16,13 +16,13 @@ jobs:
       script:
       - 'if [ ${TRAVIS_BRANCH} = "master" ]; then
             docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-            docker build -t node-express-auth-crud:latest ./;
+            docker build -t node-express-auth-crud:latest .;
             docker images;
             docker tag node-express-auth-crud:latest $DOCKER_USERNAME/node-express-auth-crud:latest;
             docker push $DOCKER_USERNAME/node-express-auth-crud:latest;
         else [ ${TRAVIS_BRANCH} = "develop" ];
             docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-            docker build -t node-express-auth-crud:dev ./;
+            docker build -t node-express-auth-crud:dev .;
             docker images;
             docker tag node-express-auth-crud:dev $DOCKER_USERNAME/node-express-auth-crud:dev;
             docker push $DOCKER_USERNAME/node-express-auth-crud:dev;
