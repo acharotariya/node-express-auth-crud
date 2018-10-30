@@ -1,0 +1,36 @@
+sudo: required
+
+language: node
+
+services:
+  - docker
+
+branches:
+  only:
+  - master
+  - develop
+
+jobs:
+  include:
+    - stage: Push docker image to dockerhub
+      script:
+      - 'if [ ${TRAVIS_BRANCH} = "master" ]; then
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+            docker build -t node-express-auth-crud:latest ./;
+            docker images;
+            docker tag node-express-auth-crud:latest $DOCKER_USERNAME/node-express-auth-crud:latest;
+            docker push $DOCKER_USERNAME/node-express-auth-crud:latest;
+        else [ ${TRAVIS_BRANCH} = "develop" ]; then
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+            docker build -t node-express-auth-crud:dev ./;
+            docker images;
+            docker tag node-express-auth-crud:dev $DOCKER_USERNAME/node-express-auth-crud:dev;
+            docker push $DOCKER_USERNAME/node-express-auth-crud:dev;
+        fi'
+
+notifications:
+  email:
+    recipients:
+      - acharotariya@officebrain.com
+    on_success: always
+    on_failure: always
